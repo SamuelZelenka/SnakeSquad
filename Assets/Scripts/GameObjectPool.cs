@@ -14,13 +14,13 @@ public class GameObjectPool<T> : ObjectPool<T> where T : IPoolable, new()
 
     public override void Release(T releaseObject)
     {
+        releaseObject.SetActive(false);
         if (GetPoolSize() > capacity)
         {
             Object.Destroy(releaseObject.GameObject);
             return;
         }
         pool.Enqueue(releaseObject);
-        releaseObject.SetActive(false);
     }
     public GameObjectPool(T prefab, Transform parent)
     {

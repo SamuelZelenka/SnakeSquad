@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class Squad : MonoBehaviour
 {
-    [SerializeField, Range(0, 5)] private float _tickSpeedSeconds;
-    [SerializeField, Range(0, 10)] private float _moveSpeed;
+    [SerializeField, Range(0, 5)] private float _tickRate;
+    [SerializeField, Range(1, 50)] private float _moveSpeed;
+    
     [SerializeField] private GameObject _directionMarker;
 
     public delegate void MovementHandler(Vector2Int coordinate);
@@ -20,9 +21,10 @@ public class Squad : MonoBehaviour
     {
         head = SpawnManager.SpawnAt<Soldier>(Vector2Int.zero).GetComponent<Soldier>();
         tail = head;
-        Camera.main.transform.SetParent(head.transform);
+        head.squad = this;
+        transform.SetParent(head.transform);
+        UpdateMarker(HexGrid.GetCoordinateInDirection(head.coordinate, currentDirection));
         StartCoroutine(MoveTick());
-        onMoveTick += UpdateMarker;
     }
 
     private void Update()
@@ -32,7 +34,7 @@ public class Squad : MonoBehaviour
 
     private void UpdateMarker(Vector2Int coordinate)
     {
-        _directionMarker.transform.position = transform.position + HexGrid.GetWorldPos(coordinate);
+        _directionMarker.transform.position = HexGrid.GetWorldPos(coordinate);
     }
 
     private void CheckInput()
@@ -66,22 +68,30 @@ public class Squad : MonoBehaviour
         tail.nextSoldier = soldier;
         tail = soldier;
         soldier.nextSoldier = null;
-        StartCoroutine(soldier.MoveToTarget(tail.coordinate, _moveSpeed));
     }
     
     private IEnumerator MoveTick()
     {
-        yield return new WaitForSeconds(_tickSpeedSeconds);
-        
         Vector2Int moveToCoordinate =  HexGrid.GetCoordinateInDirection(head.coordinate, currentDirection);
-        HexNode nextNode = GameBoard.GetNode(moveToCoordinate);
-        if (nextNode.value != null)
-        {
-            Add(nextNode.value as Soldier);
-        }
-        
         onMoveTick?.Invoke(moveToCoordinate);
-        StartCoroutine(head.MoveToTarget(moveToCoordinate, MoveSpeed));
+        
+        yield return new WaitForSeconds(_tickRate);
+
+        if (CollisionCheck(moveToCoordinate, out HexNode checkedNode))
+        {
+            checkedNode.value.OnCollision(head);
+            checkedNode.value = null;
+        }
+
+        yield return StartCoroutine(head.MoveToTarget(moveToCoordinate, MoveSpeed));
+        
         StartCoroutine(MoveTick());
+        
+    }
+
+    private bool CollisionCheck(Vector2Int coordinate, out HexNode checkedNode)
+    {
+        checkedNode = GameBoard.GetNode(coordinate);
+        return checkedNode && checkedNode.value != null;
     }
 }

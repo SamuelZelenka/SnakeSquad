@@ -7,11 +7,17 @@ public class Soldier : NodeObject
     [SerializeField] public Soldier previousSoldier;
 
     public Vector2Int coordinate;
-
-    public override NodeObject OnCollision(Squad collidingSquad)
+    public Squad squad;
+    
+    public override NodeObject OnCollision<T>(T other)
     {
-        collidingSquad.Add(this);
-        StartCoroutine(MoveToTarget(collidingSquad.tail.coordinate, 2));
+        Soldier soldier = other as Soldier;
+        if (soldier != null)
+        {
+            squad = soldier.squad;
+            squad.Add(this);
+            StartCoroutine(MoveToTarget(squad.head.coordinate, 2));
+        }
         return this;
     }
     
@@ -21,14 +27,17 @@ public class Soldier : NodeObject
     {
         Vector2Int previousCoordinate = coordinate;
         coordinate = gridCoordinate;
-        GameBoard.GetNode(gridCoordinate).value = this;
-        GameBoard.GetNode(previousCoordinate).value = null;
+        
         Vector2 worldPosition = HexGrid.GetWorldPos(coordinate);
         
         while (Application.isPlaying && Vector2.Distance(transform.position, worldPosition) > 0.001f)
         {
             transform.position = Vector2.MoveTowards(transform.position, worldPosition, speed);
             yield return null;
+        }
+        if (nextSoldier != null)
+        {
+            yield return StartCoroutine(nextSoldier.MoveToTarget(previousCoordinate, speed));
         }
     }
 }
