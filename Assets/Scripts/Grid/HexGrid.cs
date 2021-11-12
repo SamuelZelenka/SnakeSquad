@@ -3,7 +3,7 @@ using UnityEngine;
 
 public enum HexDirection { E, SE, SW, W, NW, NE }
 
-public class HexGrid : MonoBehaviour
+public static class HexGrid
 {
     public static Vector3 GetWorldPos(Vector2Int gridCoordinate)
     {

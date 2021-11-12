@@ -17,13 +17,17 @@ public class HexNode : MonoBehaviour, IPoolable
         Squad.onMoveTick += CheckVisibility;
     }
 
-    public  void CheckVisibility(Vector2Int headCoordinate)
+    private void OnDisable()
     {
-        float distanceToPlayer = Vector2.Distance(headCoordinate, coordinate);
+        Squad.onMoveTick -= CheckVisibility;
+    }
+
+    public  void CheckVisibility(Squad squad)
+    {
+        float distanceToPlayer = Vector2.Distance(squad.head.coordinate, coordinate);
         spriteRender.color = new Color(spriteRender.color.r, spriteRender.color.g, spriteRender.color.b, 1 - distanceToPlayer/visibilityRange);
         if (Application.isPlaying && distanceToPlayer > visibilityRange)
         {
-            Squad.onMoveTick -= CheckVisibility;
             GameBoard.ReleaseNode(this);
         }
     }

@@ -35,8 +35,10 @@ public class SpawnManager : MonoBehaviour
         Debug.LogError($"Prefab of type {typeof(T)} does not exist in SpawnManager prefabs.");
         return null;
     }
-    public static GameObject SpawnAt<T>(Vector2Int coordinate) where T : MonoBehaviour
+    public static T SpawnAt<T>(Vector2Int coordinate) where T : MonoBehaviour
     {
-        return Instantiate(GetPrefab<T>(), HexGrid.GetWorldPos(coordinate), quaternion.identity);
+        GameObject spawnPrefab = GetPrefab<T>();
+        GameObject spawnedObject = Instantiate(spawnPrefab, HexGrid.GetWorldPos(coordinate), quaternion.identity);
+        return spawnedObject.GetComponent<T>();
     }
 }

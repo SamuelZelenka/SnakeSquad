@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class ObjectPool<T> where T : new()
 {
-    public int capacity = 1;
+    public int capacity = 50;
 
     protected delegate T CreationHandler();
     protected CreationHandler onCreate;
