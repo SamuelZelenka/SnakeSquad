@@ -5,5 +5,5 @@ using UnityEngine;
 public interface IPoolable
 {
     void SetActive(bool active);
-    GameObject GameObject { get; }
+    GameObject gameObject { get; }
 }

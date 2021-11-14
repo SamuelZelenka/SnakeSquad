@@ -33,7 +33,7 @@ public class SquadMember : NodeObject
         coordinate = gridCoordinate;
         
         GameBoard.RemoveNodeObjectAt(previousCoordinate);
-        GameBoard.AddNodeObjectAt(coordinate, this);
+        GameBoard.SetNodeObjectAt(coordinate, this);
 
         Vector2 worldPosition = HexGrid.GetWorldPos(coordinate);
 

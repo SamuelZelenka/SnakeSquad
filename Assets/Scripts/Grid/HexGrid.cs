@@ -7,8 +7,10 @@ public static class HexGrid
 {
     public static Vector3 GetWorldPos(Vector2Int gridCoordinate)
     {
-        const float GRID_OFFSET = 0.5f;
-        float xOffset = gridCoordinate.y % 2 == 0 ? 0 : GRID_OFFSET;
+        const float GRID_OFFSET_ODD = 0.5f, GRID_OFFSET_EVEN = 0;
+
+        float xOffset = gridCoordinate.y % 2 == 0 ? GRID_OFFSET_EVEN : GRID_OFFSET_ODD;
+
         float xPos = gridCoordinate.x + xOffset;
         float yPos = gridCoordinate.y;
         

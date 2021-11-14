@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class HexNode : MonoBehaviour, IPoolable
@@ -26,13 +23,12 @@ public class HexNode : MonoBehaviour, IPoolable
     {
         float distanceToPlayer = Vector2.Distance(squad.head.coordinate, coordinate);
         spriteRender.color = new Color(spriteRender.color.r, spriteRender.color.g, spriteRender.color.b, 1 - distanceToPlayer/visibilityRange);
+
         if (Application.isPlaying && distanceToPlayer > visibilityRange)
         {
             GameBoard.ReleaseNode(this);
         }
     }
 
-    public void SetActive(bool active) => gameObject.SetActive(active);
-
-    public GameObject GameObject => gameObject;
+    public void SetActive(bool active) => base.gameObject.SetActive(active);
 }

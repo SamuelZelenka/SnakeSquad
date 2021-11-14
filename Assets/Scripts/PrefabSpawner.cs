@@ -1,12 +1,10 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class SpawnManager : MonoBehaviour
+public class PrefabSpawner : MonoBehaviour
 {
-    public static SpawnManager instance;
+    public static PrefabSpawner instance;
 
     public List<GameObject> prefabs = new List<GameObject>();
 

@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Random = UnityEngine.Random;
-
 
 public class GameBoard : MonoBehaviour
 {
@@ -11,8 +8,6 @@ public class GameBoard : MonoBehaviour
 
     [SerializeField, Range(0, 100)] private float _spawnRate = 2;
     [SerializeField, Range(1, 5)] private int revealRange = 2;
-    
-    
 
     private static GameBoard _instance;
     public Dictionary<Vector2Int, NodeObject> nodeObjects = new Dictionary<Vector2Int, NodeObject>();
@@ -36,7 +31,7 @@ public class GameBoard : MonoBehaviour
         Squad.onMoveTick += RevealHexagonsAroundSquad;
     }
 
-    public static void AddNodeObjectAt(Vector2Int coordinate, NodeObject nodeObject)
+    public static void SetNodeObjectAt(Vector2Int coordinate, NodeObject nodeObject)
     {
         if (!_instance.nodeObjects.ContainsKey(coordinate))
         {
@@ -47,11 +42,6 @@ public class GameBoard : MonoBehaviour
     public static void RemoveNodeObjectAt(Vector2Int coordinate)
     {
         _instance.nodeObjects.Remove(coordinate);
-    }
-    
-    public HexNode AcquireNode()
-    {
-      return _nodePool.Acquire();  
     }
 
     public static void ReleaseNode(HexNode node)
@@ -74,18 +64,18 @@ public class GameBoard : MonoBehaviour
                 DrawHexagon(nodeCoordinate);
                 if (GenerateObject())
                 {
-                    NodeObject generatedObject = SpawnManager.SpawnAt<PickUpSquadMember>(nodeCoordinate);
+                    NodeObject generatedObject = PrefabSpawner.SpawnAt<SquadMemberObject>(nodeCoordinate);
                     
                     generatedObject.SetCoordinate(nodeCoordinate);
                     
                     nodeObjects[nodeCoordinate] = generatedObject;
-                    AddNodeObjectAt(nodeCoordinate, generatedObject);
+                    SetNodeObjectAt(nodeCoordinate, generatedObject);
                 }
             }  
         }
         void DrawHexagon(Vector2Int coordinate)
         {
-            HexNode newNode = AcquireNode();
+            HexNode newNode = _nodePool.Acquire();
             newNode.coordinate = coordinate;
             newNode.transform.position = HexGrid.GetWorldPos(coordinate);
             visibleNodes.Add(coordinate, newNode);
