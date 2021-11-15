@@ -81,17 +81,23 @@ public class Squad : MonoBehaviour
     {
         Vector2Int moveToCoordinate;
 
-        while (true)
+        while (Application.isPlaying)
         {
             moveToCoordinate = HexGrid.GetCoordinateInDirection(head.coordinate, currentDirection);
             NodeObject moveToNodeObject = GameBoard.GetNodeObject(moveToCoordinate);
-            if (moveToNodeObject)
+
+            onMoveTick?.Invoke(this);
+
+            await Task.WhenAll(MoveAllMembers());
+
+            if (moveToNodeObject != null)
             {
                 moveToNodeObject.OnCollision(this);
             }
-            onMoveTick?.Invoke(this);
-            await Task.WhenAll(MoveAllMembers());
+
             await Task.Delay(tickRateMilliseconds);
+
+
         }
 
         Task[] MoveAllMembers()

@@ -21,11 +21,18 @@ public class SquadMember : NodeObject
 
     public override void OnCollision(Squad squad)
     {
-        if (squad.head.coordinate == coordinate)
+        if (IsGameOver(squad))
         {
             Debug.Log("You F Up.");
         }
     }
+
+    private bool IsGameOver(Squad squad)
+    {
+        return squad.head.coordinate == coordinate && 
+            GameBoard.GetNodeObject(squad.head.coordinate) != squad.head;
+    }
+
 
     public async Task MoveToTarget(Vector2Int gridCoordinate, float __moveSpeed)
     {
@@ -37,13 +44,13 @@ public class SquadMember : NodeObject
 
         Vector2 worldPosition = HexGrid.GetWorldPos(coordinate);
 
-        float t = 0; 
+        float pointValue = 0; 
 
         while (Application.isPlaying && Vector2.Distance(transform.position, worldPosition) > 0.001f)
         {
-            t += Time.deltaTime / __moveSpeed;
+            pointValue += Time.deltaTime / __moveSpeed;
             
-            transform.position = Vector2.Lerp(transform.position, worldPosition, t);
+            transform.position = Vector2.Lerp(transform.position, worldPosition, pointValue);
             await Task.Yield();
         }
     }

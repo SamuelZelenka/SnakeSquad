@@ -6,15 +6,14 @@ public class SquadMemberObject : NodeObject
     
     public override void OnCollision(Squad squad)
     {
-        AddSquadMember(squad);
-
-        GameSession.OnInterract.Invoke(1);
+        if (squad.head.coordinate == coordinate)
+        {
+            AddSquadMember(squad);
+        }
     }
 
     private void AddSquadMember(Squad squad)
     {
-        if (squad.head.coordinate == coordinate)
-        {
             SquadMember newMember = PrefabSpawner.SpawnAt<SquadMember>(coordinate);
 
             squad.Add(newMember);
@@ -23,6 +22,5 @@ public class SquadMemberObject : NodeObject
             GameBoard.SetNodeObjectAt(coordinate, newMember);
 
             Destroy(gameObject);
-        }
     }
 }
