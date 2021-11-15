@@ -111,8 +111,8 @@ public class GameBoard : MonoBehaviour
     
     public static T SpawnAt<T>(Vector2Int coordinate) where T : MonoBehaviour
     {
-        GameObject spawnPrefab = _instance.prefabContainer.GetPrefab<T>() as GameObject;
-        GameObject spawnedObject = Instantiate(spawnPrefab, HexGrid.GetWorldPos(coordinate), Quaternion.identity);
+        T spawnPrefab = _instance.prefabContainer.GetPrefab<T>();
+        T spawnedObject = Instantiate(spawnPrefab, HexGrid.GetWorldPos(coordinate), Quaternion.identity);
         return spawnedObject.GetComponent<T>();
     }
 

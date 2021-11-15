@@ -4,13 +4,13 @@ using UnityEngine;
 public class PrefabContainer : ScriptableObject
 {
     [SerializeField] private GameObject[] _prefabs;
-    public GameObject GetPrefab<T>() where T : MonoBehaviour
+    public T GetPrefab<T>() where T : MonoBehaviour
     {
         for (int i = 0; i < _prefabs.Length; i++)
         {
-            if (_prefabs[i].TryGetComponent<T>(out _))
+            if (_prefabs[i].TryGetComponent<T>(out T prefab))
             {
-                return _prefabs[i];
+                return prefab;
             }
         }
         
