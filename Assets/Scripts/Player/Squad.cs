@@ -1,27 +1,27 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
 public class Squad : MonoBehaviour
 {
-    [SerializeField, Range(0, 5)] private float _tickRateSeconds;
-    [SerializeField, Range(0, 50)] private float _moveSpeed;
-
-    [SerializeField] private GameObject _directionMarker;
-
+    
+    
     public delegate void MovementHandler(Vector2Int coordinate, Squad squad);
     public static MovementHandler onMoveTick;
     
-    public HexDirection lastDirection;
-    public HexDirection currentDirection;
-    
     public SquadMember head;
     public SquadMember tail;
+        
+    public HexDirection lastDirection;
+    public HexDirection currentDirection;
+
+    [SerializeField, Range(0, 5)] private float _tickRateSeconds;
+    [SerializeField, Range(0, 50)] private float _moveSpeed;
+    [SerializeField] private GameObject _directionMarker;
+
     private int TickRateMilliseconds => (int)(_tickRateSeconds * 1000);
 
-    private Vector2Int CurrentDirectionVector =>
-        head.coordinate + HexGrid.GetDirectionVector(head.coordinate, currentDirection);
+    private Vector2Int CurrentDirectionVector => head.coordinate + HexGrid.GetDirectionVector(head.coordinate, currentDirection);
 
     private void Start()
     {
@@ -61,21 +61,11 @@ public class Squad : MonoBehaviour
 
         int newDirection = isClockwise ? CLOCKWISE : COUNTER_CLOCKWISE;
 
-        int unwrappedDirection = (int)(currentDirection + newDirection % MAX_DIRECTION + MAX_DIRECTION);
+        HexDirection wrappedDirection = (HexDirection)(((int)currentDirection + newDirection % MAX_DIRECTION + MAX_DIRECTION) % MAX_DIRECTION);
 
-        int wrappedDirection = unwrappedDirection % MAX_DIRECTION;
+        HexDirection oppositeOfLastDirection = (HexDirection)(((int)lastDirection + MAX_DIRECTION / 2) % MAX_DIRECTION);
 
-        currentDirection = wrappedDirection == ((int)lastDirection + MAX_DIRECTION/2) % MAX_DIRECTION    ? currentDirection : (HexDirection) wrappedDirection;
-    }
-
-    private bool IsDirectionSelf(HexDirection direction)
-    {
-        if (head.nextSquadMember == null)
-        {
-            return false;
-        }
-
-        return HexGrid.GetDirectionVector(head.coordinate, direction) == head.nextSquadMember.coordinate;
+        currentDirection = wrappedDirection == oppositeOfLastDirection ? currentDirection : (HexDirection) wrappedDirection;
     }
 
     public void Add(SquadMember squadMember)
@@ -134,5 +124,4 @@ public class Squad : MonoBehaviour
             return moveMemberTasks.ToArray();
         }
     }
-
 }

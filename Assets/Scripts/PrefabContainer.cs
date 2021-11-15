@@ -1,18 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "PrefabSet", fileName = "Prefab Set")]
 public class PrefabContainer : ScriptableObject
 {
-    [SerializeField] private GameObject[] prefabs;
+    [SerializeField] private GameObject[] _prefabs;
     public GameObject GetPrefab<T>() where T : MonoBehaviour
     {
-        for (int i = 0; i < prefabs.Length; i++)
+        for (int i = 0; i < _prefabs.Length; i++)
         {
-            if (prefabs[i].TryGetComponent<T>(out _))
+            if (_prefabs[i].TryGetComponent<T>(out _))
             {
-                return prefabs[i];
+                return _prefabs[i];
             }
         }
         

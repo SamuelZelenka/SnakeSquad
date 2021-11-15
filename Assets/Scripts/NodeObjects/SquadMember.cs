@@ -5,6 +5,7 @@ public class SquadMember : NodeObject
 {
     [SerializeField] public SquadMember nextSquadMember;
     [SerializeField] public SquadMember previousSquadMember;
+    
     private void Start()
     {
         Squad.onMoveTick += OnCollision;

@@ -10,6 +10,7 @@ public class GameBoard : MonoBehaviour
     [SerializeField, Range(1, 5)] private int _revealRange = 2;
 
     private static GameBoard _instance;
+    
     public Dictionary<Vector2Int, NodeObject> nodeObjects = new Dictionary<Vector2Int, NodeObject>();
     public Dictionary<Vector2Int, HexNode> visibleNodes = new Dictionary<Vector2Int, HexNode>();
 
@@ -23,7 +24,6 @@ public class GameBoard : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
-            Camera camera = Camera.main;
         }
         else
         {
@@ -63,7 +63,7 @@ public class GameBoard : MonoBehaviour
             if (Application.isPlaying && !visibleNodes.ContainsKey(nodeCoordinate))
             {
                 DrawHexagon(nodeCoordinate);
-                if (!nodeObjects.ContainsKey(nodeCoordinate) && GenerateObject())
+                if (!nodeObjects.ContainsKey(nodeCoordinate) && SpawnNewObject())
                 {
                     NodeObject generatedObject = SpawnAt<NewMember>(nodeCoordinate);
                     
@@ -116,9 +116,9 @@ public class GameBoard : MonoBehaviour
         return spawnedObject.GetComponent<T>();
     }
 
-    private bool GenerateObject()
+    //Future problem Make better way to spawn stuff
+    private bool SpawnNewObject()
     {
-        
         return Random.Range(0, 100) < _spawnRate;
     }
 }
