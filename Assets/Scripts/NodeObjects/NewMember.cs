@@ -1,12 +1,12 @@
 using UnityEngine;
 
-public class SquadMemberObject : NodeObject
+public class NewMember : NodeObject
 {
     [SerializeField] private SquadMember squadMember;
     
-    public override void OnCollision(Squad squad)
+    public override void OnCollision( Vector2Int moveToCoordinate, Squad squad)
     {
-        if (squad.head.coordinate == coordinate)
+        if (moveToCoordinate == coordinate)
         {
             AddSquadMember(squad);
         }
@@ -14,7 +14,7 @@ public class SquadMemberObject : NodeObject
 
     private void AddSquadMember(Squad squad)
     {
-            SquadMember newMember = PrefabSpawner.SpawnAt<SquadMember>(coordinate);
+            SquadMember newMember = GameBoard.SpawnAt<SquadMember>(coordinate);
 
             squad.Add(newMember);
 

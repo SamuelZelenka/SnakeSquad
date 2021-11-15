@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -7,8 +5,6 @@ public class SquadMember : NodeObject
 {
     [SerializeField] public SquadMember nextSquadMember;
     [SerializeField] public SquadMember previousSquadMember;
-
-    private Squad _squad;
     private void Start()
     {
         Squad.onMoveTick += OnCollision;
@@ -19,22 +15,20 @@ public class SquadMember : NodeObject
         Squad.onMoveTick -= OnCollision;
     }
 
-    public override void OnCollision(Squad squad)
+    public override void OnCollision(Vector2Int moveToCoordinate, Squad squad)
     {
-        if (IsGameOver(squad))
+        if (IsGameOver(moveToCoordinate) && moveToCoordinate != squad.tail.coordinate)
         {
-            Debug.Log("You F Up.");
+            Debug.Log("You F Up."); //Insert Game Over here
         }
     }
 
-    private bool IsGameOver(Squad squad)
+    private bool IsGameOver(Vector2Int moveToCoordinate)
     {
-        return squad.head.coordinate == coordinate && 
-            GameBoard.GetNodeObject(squad.head.coordinate) != squad.head;
+        return moveToCoordinate == coordinate;
     }
 
-
-    public async Task MoveToTarget(Vector2Int gridCoordinate, float __moveSpeed)
+    public async Task MoveToTarget(Vector2Int gridCoordinate, float moveSpeed)
     {
         Vector2Int previousCoordinate = coordinate;
         coordinate = gridCoordinate;
@@ -48,11 +42,10 @@ public class SquadMember : NodeObject
 
         while (Application.isPlaying && Vector2.Distance(transform.position, worldPosition) > 0.001f)
         {
-            pointValue += Time.deltaTime / __moveSpeed;
+            pointValue += Time.deltaTime / moveSpeed;
             
             transform.position = Vector2.Lerp(transform.position, worldPosition, pointValue);
             await Task.Yield();
         }
     }
-    
 }

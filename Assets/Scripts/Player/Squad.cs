@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -9,21 +10,25 @@ public class Squad : MonoBehaviour
 
     [SerializeField] private GameObject _directionMarker;
 
-    public delegate void MovementHandler(Squad squad);
+    public delegate void MovementHandler(Vector2Int coordinate, Squad squad);
     public static MovementHandler onMoveTick;
-
+    
+    public HexDirection lastDirection;
     public HexDirection currentDirection;
+    
     public SquadMember head;
     public SquadMember tail;
+    private int TickRateMilliseconds => (int)(_tickRateSeconds * 1000);
 
-    private int tickRateMilliseconds => (int)(_tickRateSeconds * 1000);
+    private Vector2Int CurrentDirectionVector =>
+        head.coordinate + HexGrid.GetDirectionVector(head.coordinate, currentDirection);
 
     private void Start()
     {
-        head = PrefabSpawner.SpawnAt<SquadMember>(Vector2Int.zero);
+        head = GameBoard.SpawnAt<SquadMember>(Vector2Int.zero);
         tail = head;
         transform.SetParent(head.transform);
-        UpdateMarker(HexGrid.GetCoordinateInDirection(head.coordinate, currentDirection));
+        UpdateMarker(CurrentDirectionVector);
         MoveTick();
     }
 
@@ -46,8 +51,8 @@ public class Squad : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             IncrementDirection(false);
-        } 
-        UpdateMarker(HexGrid.GetCoordinateInDirection(head.coordinate, currentDirection));
+        }
+        UpdateMarker(CurrentDirectionVector);
     }
 
     private void IncrementDirection(bool isClockwise)
@@ -60,7 +65,17 @@ public class Squad : MonoBehaviour
 
         int wrappedDirection = unwrappedDirection % MAX_DIRECTION;
 
-        currentDirection = (HexDirection) wrappedDirection;
+        currentDirection = wrappedDirection == ((int)lastDirection + MAX_DIRECTION/2) % MAX_DIRECTION    ? currentDirection : (HexDirection) wrappedDirection;
+    }
+
+    private bool IsDirectionSelf(HexDirection direction)
+    {
+        if (head.nextSquadMember == null)
+        {
+            return false;
+        }
+
+        return HexGrid.GetDirectionVector(head.coordinate, direction) == head.nextSquadMember.coordinate;
     }
 
     public void Add(SquadMember squadMember)
@@ -70,38 +85,38 @@ public class Squad : MonoBehaviour
 
         SquadMember currentMember = squadMember;
 
+        if (head == tail)
+        {
+            tail = squadMember;
+        }
         while (currentMember.nextSquadMember != null)
         {
             currentMember.coordinate = currentMember.nextSquadMember.coordinate;
             currentMember = currentMember.nextSquadMember;
-        } 
+        }
     }
 
     private async void MoveTick()
     {
-        Vector2Int moveToCoordinate;
-
         while (Application.isPlaying)
         {
-            moveToCoordinate = HexGrid.GetCoordinateInDirection(head.coordinate, currentDirection);
-            NodeObject moveToNodeObject = GameBoard.GetNodeObject(moveToCoordinate);
 
-            onMoveTick?.Invoke(this);
-
-            await Task.WhenAll(MoveAllMembers());
+            NodeObject moveToNodeObject = GameBoard.GetNodeObject(CurrentDirectionVector);
+            onMoveTick?.Invoke(CurrentDirectionVector, this);
 
             if (moveToNodeObject != null)
             {
-                moveToNodeObject.OnCollision(this);
+                moveToNodeObject.OnCollision(CurrentDirectionVector, this);
             }
 
-            await Task.Delay(tickRateMilliseconds);
-
-
+            lastDirection = currentDirection;
+            await Task.WhenAll(MoveAllMembers());
+            await Task.Delay(TickRateMilliseconds);
         }
-
+        
         Task[] MoveAllMembers()
         {
+            Vector2Int moveToCoordinate = CurrentDirectionVector;
             SquadMember currentMember = head;
             List<Task> moveMemberTasks = new List<Task>();
 
@@ -119,4 +134,5 @@ public class Squad : MonoBehaviour
             return moveMemberTasks.ToArray();
         }
     }
+
 }

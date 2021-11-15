@@ -22,12 +22,10 @@ public static class HexGrid
         List<Vector2Int> neighbours = new List<Vector2Int>();
         for (int direction = 0; direction < (int)HexDirection.NE + 1; direction++)
         {
-            neighbours.Add(GetCoordinateInDirection(gridCoordinate, (HexDirection)direction));
+            neighbours.Add(gridCoordinate + GetDirectionVector(gridCoordinate, (HexDirection)direction));
         }
         return neighbours.ToArray();
     }
-
-    public static Vector2Int GetCoordinateInDirection(Vector2Int origin, HexDirection direction) => GetDirectionVector(origin, direction) + origin;
 
     public static Vector2Int GetDirectionVector(Vector2Int origin, HexDirection direction)
     {

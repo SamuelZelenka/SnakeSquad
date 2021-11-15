@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class GameBoard : MonoBehaviour
 {
-    [SerializeField] private HexNode prefab;
+    [SerializeField] private PrefabContainer prefabContainer;
 
     [SerializeField, Range(0, 100)] private float _spawnRate = 2;
-    [SerializeField, Range(1, 5)] private int revealRange = 2;
+    [SerializeField, Range(1, 5)] private int _revealRange = 2;
 
     private static GameBoard _instance;
     public Dictionary<Vector2Int, NodeObject> nodeObjects = new Dictionary<Vector2Int, NodeObject>();
@@ -17,7 +17,8 @@ public class GameBoard : MonoBehaviour
 
     private void Awake()
     {
-        _nodePool = new GameObjectPool<HexNode>(prefab, transform);
+        HexNode hexNodePrefab = prefabContainer.GetPrefab<HexNode>().GetComponent<HexNode>();
+        _nodePool = new GameObjectPool<HexNode>(hexNodePrefab, transform);
 
         if (_instance == null)
         {
@@ -62,9 +63,9 @@ public class GameBoard : MonoBehaviour
             if (Application.isPlaying && !visibleNodes.ContainsKey(nodeCoordinate))
             {
                 DrawHexagon(nodeCoordinate);
-                if (GenerateObject())
+                if (!nodeObjects.ContainsKey(nodeCoordinate) && GenerateObject())
                 {
-                    NodeObject generatedObject = PrefabSpawner.SpawnAt<SquadMemberObject>(nodeCoordinate);
+                    NodeObject generatedObject = SpawnAt<NewMember>(nodeCoordinate);
                     
                     generatedObject.SetCoordinate(nodeCoordinate);
                     
@@ -82,11 +83,11 @@ public class GameBoard : MonoBehaviour
         }
     }
 
-    private void RevealHexagonsAroundSquad(Squad squad)
+    private void RevealHexagonsAroundSquad(Vector2Int moveToCoordinate, Squad squad)
     {
         HashSet<Vector2Int> neighbours = new HashSet<Vector2Int>();
 
-        GetHexagonsInRange(squad.head.coordinate, revealRange);
+        GetHexagonsInRange(moveToCoordinate, _revealRange);
 
         DrawHexagons(neighbours.ToArray());
         
@@ -107,9 +108,17 @@ public class GameBoard : MonoBehaviour
             return HexGrid.GetNeighboursAt(source);
         }
     }
+    
+    public static T SpawnAt<T>(Vector2Int coordinate) where T : MonoBehaviour
+    {
+        GameObject spawnPrefab = _instance.prefabContainer.GetPrefab<T>() as GameObject;
+        GameObject spawnedObject = Instantiate(spawnPrefab, HexGrid.GetWorldPos(coordinate), Quaternion.identity);
+        return spawnedObject.GetComponent<T>();
+    }
 
     private bool GenerateObject()
     {
+        
         return Random.Range(0, 100) < _spawnRate;
     }
 }
