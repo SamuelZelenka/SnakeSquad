@@ -52,10 +52,15 @@ public class Squad : MonoBehaviour
         {
             IncrementDirection(false);
         }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            RemoveMember(head.nextSquadMember);
+        }
         UpdateMarker(CurrentDirectionVector);
     }
 
-    private void IncrementDirection(bool isClockwise)
+    public void IncrementDirection(bool isClockwise)
     {
         const int CLOCKWISE = 1, COUNTER_CLOCKWISE = -1, MAX_DIRECTION = (int)HexDirection.NE + 1;
 
@@ -68,9 +73,37 @@ public class Squad : MonoBehaviour
         currentDirection = wrappedDirection == oppositeOfLastDirection ? currentDirection : (HexDirection) wrappedDirection;
     }
 
+    public void ResetSnake()
+    {
+        SquadMember currentMember = head;
+
+    }
+
+    public void RemoveMember(SquadMember member)
+    {
+        if (member.nextSquadMember == null && member.previousSquadMember == null)
+        {
+            //Game Over
+        }
+        else if (member == head)
+        {
+            head = member.nextSquadMember;
+        }
+        else if (member == tail)
+        {
+            tail = member.previousSquadMember;
+        }
+
+        member.previousSquadMember.nextSquadMember = member.nextSquadMember;
+        member.nextSquadMember.previousSquadMember = member.previousSquadMember;
+        Destroy(member.gameObject);
+    }
+    
     public void Add(SquadMember squadMember)
     {
         squadMember.nextSquadMember = head.nextSquadMember;
+        squadMember.previousSquadMember = head;
+        
         head.nextSquadMember = squadMember;
 
         SquadMember currentMember = squadMember;

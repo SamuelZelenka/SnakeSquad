@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class SquadMember : NodeObject
 {
-    [SerializeField] public SquadMember nextSquadMember;
-    [SerializeField] public SquadMember previousSquadMember;
-    
+    public SquadMember nextSquadMember;
+    public SquadMember previousSquadMember;
+
     private void Start()
     {
         Squad.onMoveTick += OnCollision;
