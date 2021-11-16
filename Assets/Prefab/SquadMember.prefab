@@ -26,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8542772438359048595}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.10500001, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children: []
   m_Father: {fileID: 0}
@@ -44,10 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c69d2c9ce6dc3a4eaf10b59261eb11f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nextSoldier: {fileID: 0}
-  previousSoldier: {fileID: 0}
   coordinate: {x: 0, y: 0}
-  squad: {fileID: 0}
+  nextSquadMember: {fileID: 0}
+  previousSquadMember: {fileID: 0}
 --- !u!212 &8542772438359048556
 SpriteRenderer:
   m_ObjectHideFlags: 0

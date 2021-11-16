@@ -27,6 +27,12 @@ public static class HexGrid
         return neighbours.ToArray();
     }
 
+    public static int RandomNumberByCoordinate(Vector2Int coordinate, int min, int max)
+    {
+        Random.InitState(coordinate.x * coordinate.y);
+        return Random.Range(min, max);
+    }
+
     public static Vector2Int GetDirectionVector(Vector2Int origin, HexDirection direction)
     {
         switch (direction)

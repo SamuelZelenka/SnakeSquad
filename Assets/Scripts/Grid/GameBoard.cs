@@ -30,6 +30,7 @@ public class GameBoard : MonoBehaviour
             Destroy(gameObject);
         }
         Squad.onMoveTick += RevealHexagonsAroundSquad;
+        RevealHexagonsAroundSquad(new Vector2Int(0,0));
     }
 
     public static void SetNodeObjectAt(Vector2Int coordinate, NodeObject nodeObject)
@@ -56,13 +57,13 @@ public class GameBoard : MonoBehaviour
         return _instance.nodeObjects.ContainsKey(coordinate) ? _instance.nodeObjects[coordinate] : null;
     }
 
-    private void DrawHexagons(Vector2Int[] nodeCoordinates)
+    private void AcquirHexagons(Vector2Int[] nodeCoordinates)
     {
         foreach (Vector2Int nodeCoordinate in nodeCoordinates)
         {
             if (Application.isPlaying && !visibleNodes.ContainsKey(nodeCoordinate))
             {
-                DrawHexagon(nodeCoordinate);
+                AcquireHexagon(nodeCoordinate);
                 if (!nodeObjects.ContainsKey(nodeCoordinate) && SpawnNewObject())
                 {
                     NodeObject generatedObject = SpawnAt<NewMember>(nodeCoordinate);
@@ -74,22 +75,23 @@ public class GameBoard : MonoBehaviour
                 }
             }  
         }
-        void DrawHexagon(Vector2Int coordinate)
+        void AcquireHexagon(Vector2Int coordinate)
         {
             HexNode newNode = _nodePool.Acquire();
             newNode.coordinate = coordinate;
+            newNode.CheckIfWall();
             newNode.transform.position = HexGrid.GetWorldPos(coordinate);
             visibleNodes.Add(coordinate, newNode);
         }
     }
 
-    private void RevealHexagonsAroundSquad(Vector2Int moveToCoordinate, Squad squad)
+    private void RevealHexagonsAroundSquad(Vector2Int moveToCoordinate)
     {
         HashSet<Vector2Int> neighbours = new HashSet<Vector2Int>();
 
         GetHexagonsInRange(moveToCoordinate, _revealRange);
 
-        DrawHexagons(neighbours.ToArray());
+        AcquirHexagons(neighbours.ToArray());
         
         Vector2Int[] GetHexagonsInRange(Vector2Int source, int range)
         {

@@ -457,6 +457,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 834a2d47a41c42248acaf462f32a0b89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ScreenGlowImage: {fileID: 1660449254}
 --- !u!1 &406287798
 GameObject:
   m_ObjectHideFlags: 0

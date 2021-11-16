@@ -1,34 +1,11 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class SquadMember : NodeObject
+public class SquadMember : KillableNodeObject
 {
     public SquadMember nextSquadMember;
     public SquadMember previousSquadMember;
-
-    private void Start()
-    {
-        Squad.onMoveTick += OnCollision;
-    }
-
-    private void OnDisable()
-    {
-        Squad.onMoveTick -= OnCollision;
-    }
-
-    public override void OnCollision(Vector2Int moveToCoordinate, Squad squad)
-    {
-        if (IsGameOver(moveToCoordinate) && moveToCoordinate != squad.tail.coordinate)
-        {
-            Debug.Log("You F Up."); //Insert Game Over here
-        }
-    }
-
-    private bool IsGameOver(Vector2Int moveToCoordinate)
-    {
-        return moveToCoordinate == coordinate;
-    }
-
+    
     public async Task MoveToTarget(Vector2Int gridCoordinate, float moveSpeed)
     {
         Vector2Int previousCoordinate = coordinate;

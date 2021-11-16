@@ -4,9 +4,7 @@ using UnityEngine;
 
 public class Squad : MonoBehaviour
 {
-    
-    
-    public delegate void MovementHandler(Vector2Int coordinate, Squad squad);
+    public delegate void MovementHandler(Vector2Int coordinate);
     public static MovementHandler onMoveTick;
     
     public SquadMember head;
@@ -123,9 +121,8 @@ public class Squad : MonoBehaviour
     {
         while (Application.isPlaying)
         {
-
             NodeObject moveToNodeObject = GameBoard.GetNodeObject(CurrentDirectionVector);
-            onMoveTick?.Invoke(CurrentDirectionVector, this);
+            onMoveTick?.Invoke(CurrentDirectionVector);
 
             if (moveToNodeObject != null)
             {
