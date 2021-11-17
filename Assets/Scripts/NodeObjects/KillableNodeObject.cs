@@ -8,7 +8,7 @@ public class KillableNodeObject : NodeObject
     {
         if (IsGameOver(moveToCoordinate))
         {
-            Debug.Log("You F Up."); //Insert Game Over here
+            GameSession.OnGameOver?.Invoke();
         }
     }
     private bool IsGameOver(Vector2Int moveToCoordinate)

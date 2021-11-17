@@ -50,11 +50,7 @@ public class Squad : MonoBehaviour
         {
             IncrementDirection(false);
         }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            RemoveMember(head.nextSquadMember);
-        }
+        
         UpdateMarker(CurrentDirectionVector);
     }
 
@@ -71,37 +67,10 @@ public class Squad : MonoBehaviour
         currentDirection = wrappedDirection == oppositeOfLastDirection ? currentDirection : (HexDirection) wrappedDirection;
     }
 
-    public void ResetSnake()
-    {
-        SquadMember currentMember = head;
-
-    }
-
-    public void RemoveMember(SquadMember member)
-    {
-        if (member.nextSquadMember == null && member.previousSquadMember == null)
-        {
-            //Game Over
-        }
-        else if (member == head)
-        {
-            head = member.nextSquadMember;
-        }
-        else if (member == tail)
-        {
-            tail = member.previousSquadMember;
-        }
-
-        member.previousSquadMember.nextSquadMember = member.nextSquadMember;
-        member.nextSquadMember.previousSquadMember = member.previousSquadMember;
-        Destroy(member.gameObject);
-    }
-    
     public void Add(SquadMember squadMember)
     {
         squadMember.nextSquadMember = head.nextSquadMember;
-        squadMember.previousSquadMember = head;
-        
+
         head.nextSquadMember = squadMember;
 
         SquadMember currentMember = squadMember;
@@ -121,19 +90,30 @@ public class Squad : MonoBehaviour
     {
         while (Application.isPlaying)
         {
-            NodeObject moveToNodeObject = GameBoard.GetNodeObject(CurrentDirectionVector);
-            onMoveTick?.Invoke(CurrentDirectionVector);
-
-            if (moveToNodeObject != null)
+            if (GameSession.isPlaying)
             {
-                moveToNodeObject.OnCollision(CurrentDirectionVector, this);
-            }
+                NodeObject moveToNodeObject = GameBoard.GetObjectAt(CurrentDirectionVector);
+                onMoveTick?.Invoke(CurrentDirectionVector);
 
-            lastDirection = currentDirection;
-            await Task.WhenAll(MoveAllMembers());
-            await Task.Delay(TickRateMilliseconds);
+                if (moveToNodeObject != null)
+                {
+                    moveToNodeObject.OnCollision(CurrentDirectionVector, this);
+                }
+                else if (GameBoard.GetHexNode(CurrentDirectionVector).isWall)
+                {
+                    GameSession.OnGameOver?.Invoke();
+                }
+
+                lastDirection = currentDirection;
+                await Task.WhenAll(MoveAllMembers());
+                await Task.Delay(TickRateMilliseconds);
+            }
+            else
+            {
+                break;
+            }
         }
-        
+
         Task[] MoveAllMembers()
         {
             Vector2Int moveToCoordinate = CurrentDirectionVector;

@@ -4,8 +4,7 @@ using UnityEngine;
 public class SquadMember : KillableNodeObject
 {
     public SquadMember nextSquadMember;
-    public SquadMember previousSquadMember;
-    
+
     public async Task MoveToTarget(Vector2Int gridCoordinate, float moveSpeed)
     {
         Vector2Int previousCoordinate = coordinate;

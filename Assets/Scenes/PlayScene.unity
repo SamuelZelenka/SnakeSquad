@@ -494,7 +494,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.5566038, g: 0.48827383, b: 0.30718228, a: 0}
+  m_BackGroundColor: {r: 0.18627624, g: 0.24528301, b: 0.19686975, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1325,8 +1325,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabContainer: {fileID: 11400000, guid: 252bbd98516f21c438db38e2fb34986c, type: 2}
-  _spawnRate: 2
+  _fruitSpawnChance: 2
+  _wallSpawnChance: 15
   _revealRange: 2
+  _seed: 0
+  _safeSpawnRange: 2
+  _fadeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1224840667
 Transform:
   m_ObjectHideFlags: 0

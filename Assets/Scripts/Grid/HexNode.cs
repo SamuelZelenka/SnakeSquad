@@ -2,15 +2,12 @@ using UnityEngine;
 
 public class HexNode : MonoBehaviour, IPoolable
 {
-    public NodeObject value;
     public Vector2Int coordinate;
-    
-    [SerializeField, Range(0, 100)] private int wallChance;
-    [SerializeField] private Sprite wallSprite;
-    [SerializeField] private Sprite hexSprite;
+    public bool isWall;
 
-    private bool _isWall;
-    private float visibilityRange = 4;
+    [SerializeField] private Sprite _wallSprite;
+    [SerializeField] private Sprite _hexSprite;
+
     private SpriteRenderer _spriteRender;
 
     private void OnEnable()
@@ -25,28 +22,42 @@ public class HexNode : MonoBehaviour, IPoolable
     }
 
     public  void CheckVisibility(Vector2Int moveToCoordinate)
-    {
+    { 
         float distanceToPlayer = Vector2.Distance(moveToCoordinate, coordinate);
-        if (!_isWall)
-        {
-           Color color = _spriteRender.color;
-           color = new Color(color.r, color.g, color.b, 1 - distanceToPlayer/visibilityRange);
-           _spriteRender.color = color;
-        }
 
-        if (Application.isPlaying && distanceToPlayer > visibilityRange)
+       Color color = _spriteRender.color;
+
+
+       float alpha = 1 - distanceToPlayer / GameBoard.RevealRange;
+       alpha = GameBoard.GetFadeValue(alpha);
+
+       color = new Color(color.r, color.g, color.b, alpha);
+
+       _spriteRender.color = color;
+
+        if (Application.isPlaying && distanceToPlayer > GameBoard.RevealRange)
         {
             GameBoard.ReleaseNode(this);
         }
     }
-
-    public void CheckIfWall()
+    public static bool IsCoordinateWall(Vector2Int testCoordinate)
     {
-        const int MAX_PERCECNTAGE = 100;
-        int randomValue = HexGrid.RandomNumberByCoordinate(coordinate, 0, MAX_PERCECNTAGE);
+        const int MIN_PERCENTAGE = 1, MAX_PERCENTAGE = 101;
+        bool isCoordinateTooCloseToSpawn = Vector2.Distance(testCoordinate, Vector2.zero) > GameBoard.SafeSpawnRange;
+        if (isCoordinateTooCloseToSpawn)
+        {
+            return GameBoard.RandomNumberByCoordinate(testCoordinate, MIN_PERCENTAGE, MAX_PERCENTAGE) < GameBoard.WallSpawnChance;
+        }
+        return false;
+    }
 
-        _isWall = randomValue < wallChance;
-        if (_isWall)
+    public void UpdateNode(Vector2Int newCoordinate, NodeObject newValue)
+    {
+        coordinate = newCoordinate;
+        transform.position = HexGrid.GetWorldPos(coordinate);
+        isWall = IsCoordinateWall(coordinate);
+        
+        if (isWall)
         {
             SetWall();
         }
@@ -58,13 +69,11 @@ public class HexNode : MonoBehaviour, IPoolable
 
     private void SetWall()
     {
-        _spriteRender.sprite = wallSprite;
-        _spriteRender.color = new Color(1, 1, 1, 1);
+        _spriteRender.sprite = _wallSprite;
     }
     private void SetHex()
     {
-        _spriteRender.sprite = hexSprite;
-        _spriteRender.color = new Color(1, 1, 1, 0);
+        _spriteRender.sprite = _hexSprite;
     }
 
     public void SetActive(bool active)

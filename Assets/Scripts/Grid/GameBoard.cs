@@ -6,18 +6,30 @@ public class GameBoard : MonoBehaviour
 {
     [SerializeField] private PrefabContainer prefabContainer;
 
-    [SerializeField, Range(0, 100)] private float _spawnRate = 2;
+    [SerializeField, Range(0, 100)] private int _fruitSpawnChance = 2;
+    [SerializeField, Range(0, 100)] private int _wallSpawnChance = 15;
     [SerializeField, Range(1, 5)] private int _revealRange = 2;
+    [SerializeField] private int _seed = 0;
+    [SerializeField] private float _safeSpawnRange;
+    [SerializeField] private AnimationCurve _fadeCurve;
 
     private static GameBoard _instance;
     
-    public Dictionary<Vector2Int, NodeObject> nodeObjects = new Dictionary<Vector2Int, NodeObject>();
-    public Dictionary<Vector2Int, HexNode> visibleNodes = new Dictionary<Vector2Int, HexNode>();
-
+    private readonly Dictionary<Vector2Int, NodeObject> _nodeObjects = new Dictionary<Vector2Int, NodeObject>();
+    private readonly Dictionary<Vector2Int, HexNode> _visibleNodes = new Dictionary<Vector2Int, HexNode>();
+    
     private GameObjectPool<HexNode> _nodePool;
+
+    public static float SafeSpawnRange => _instance._safeSpawnRange;
+    public static float WallSpawnChance => _instance._wallSpawnChance;
+    public static float RevealRange => _instance._revealRange;
 
     private void Awake()
     {
+        if (_seed == 0)
+        {
+            _seed = Random.Range(int.MinValue, int.MaxValue);
+        }
         HexNode hexNodePrefab = prefabContainer.GetPrefab<HexNode>().GetComponent<HexNode>();
         _nodePool = new GameObjectPool<HexNode>(hexNodePrefab, transform);
 
@@ -35,53 +47,55 @@ public class GameBoard : MonoBehaviour
 
     public static void SetNodeObjectAt(Vector2Int coordinate, NodeObject nodeObject)
     {
-        if (!_instance.nodeObjects.ContainsKey(coordinate))
+        if (!_instance._nodeObjects.ContainsKey(coordinate))
         {
-            _instance.nodeObjects.Add(coordinate, nodeObject);
+            _instance._nodeObjects.Add(coordinate, nodeObject);
         }
     }
 
     public static void RemoveNodeObjectAt(Vector2Int coordinate)
     {
-        _instance.nodeObjects.Remove(coordinate);
+        _instance._nodeObjects.Remove(coordinate);
     }
 
     public static void ReleaseNode(HexNode node)
     {
         _instance._nodePool.Release(node);
-        _instance.visibleNodes.Remove(node.coordinate);
+        _instance._visibleNodes.Remove(node.coordinate);
     }
-
-    public static NodeObject GetNodeObject(Vector2Int coordinate)
+    
+    public static NodeObject GetObjectAt(Vector2Int coordinate)
     {
-        return _instance.nodeObjects.ContainsKey(coordinate) ? _instance.nodeObjects[coordinate] : null;
+        return _instance._nodeObjects.ContainsKey(coordinate) ?  _instance._nodeObjects[coordinate] : null;
+    }
+    public static HexNode GetHexNode(Vector2Int coordinate)
+    {
+        return _instance._visibleNodes.ContainsKey(coordinate) ?  _instance._visibleNodes[coordinate] : null;
+    }
+    public static int RandomNumberByCoordinate(Vector2Int coordinate, int min, int max)
+    {
+        Random.InitState(coordinate.x * coordinate.y + _instance._seed);
+        return Random.Range(min, max);
     }
 
-    private void AcquirHexagons(Vector2Int[] nodeCoordinates)
+    public static float GetFadeValue(float percentage)
+    {
+        return _instance._fadeCurve.Evaluate(percentage);
+    }
+    private void AcquireHexagons(Vector2Int[] nodeCoordinates)
     {
         foreach (Vector2Int nodeCoordinate in nodeCoordinates)
         {
-            if (Application.isPlaying && !visibleNodes.ContainsKey(nodeCoordinate))
+            if (Application.isPlaying && !_visibleNodes.ContainsKey(nodeCoordinate))
             {
                 AcquireHexagon(nodeCoordinate);
-                if (!nodeObjects.ContainsKey(nodeCoordinate) && SpawnNewObject())
-                {
-                    NodeObject generatedObject = SpawnAt<NewMember>(nodeCoordinate);
-                    
-                    generatedObject.SetCoordinate(nodeCoordinate);
-                    
-                    nodeObjects[nodeCoordinate] = generatedObject;
-                    SetNodeObjectAt(nodeCoordinate, generatedObject);
-                }
             }  
         }
         void AcquireHexagon(Vector2Int coordinate)
         {
             HexNode newNode = _nodePool.Acquire();
-            newNode.coordinate = coordinate;
-            newNode.CheckIfWall();
-            newNode.transform.position = HexGrid.GetWorldPos(coordinate);
-            visibleNodes.Add(coordinate, newNode);
+            newNode.UpdateNode(coordinate, SpawnNewObject(coordinate));
+            _visibleNodes.Add(coordinate, newNode);
         }
     }
 
@@ -91,7 +105,7 @@ public class GameBoard : MonoBehaviour
 
         GetHexagonsInRange(moveToCoordinate, _revealRange);
 
-        AcquirHexagons(neighbours.ToArray());
+        AcquireHexagons(neighbours.ToArray());
         
         Vector2Int[] GetHexagonsInRange(Vector2Int source, int range)
         {
@@ -118,9 +132,25 @@ public class GameBoard : MonoBehaviour
         return spawnedObject.GetComponent<T>();
     }
 
-    //Future problem Make better way to spawn stuff
-    private bool SpawnNewObject()
+    private NodeObject SpawnNewObject(Vector2Int coordinate)
     {
-        return Random.Range(0, 100) < _spawnRate;
+        bool hasSpawned = Random.Range(1, 101) < _fruitSpawnChance && !HexNode.IsCoordinateWall(coordinate);
+        
+        NodeObject nodeObject;
+        
+        if (_instance._nodeObjects.ContainsKey(coordinate))
+        {
+            nodeObject = _instance._nodeObjects[coordinate];
+        }
+        else
+        {
+            nodeObject = hasSpawned ? SpawnAt<NewMember>(coordinate) : null;
+            if (hasSpawned)
+            {
+                nodeObject.SetCoordinate(coordinate);
+                _nodeObjects.Add(coordinate, nodeObject);
+            }
+        }
+        return nodeObject;
     }
 }
