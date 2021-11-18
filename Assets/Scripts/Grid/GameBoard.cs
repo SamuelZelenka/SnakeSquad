@@ -47,7 +47,8 @@ public class GameBoard : MonoBehaviour
         _nodePool = new GameObjectPool<HexNode>(hexNodePrefab, transform);
 
         Snake.onMoveTick += RevealHexagonsAroundSquad;
-        RevealHexagonsAroundSquad(new Vector2Int(0,0));
+        GameSession.onGameReset += RevealHexagonsInit;
+        RevealHexagonsAroundSquad(Vector2Int.zero);
     }
 
     public static void SetNodeObjectAt(Vector2Int coordinate, NodeObject nodeObject)
@@ -128,6 +129,10 @@ public class GameBoard : MonoBehaviour
             }
             return HexGrid.GetNeighboursAt(source);
         }
+    }
+    private void RevealHexagonsInit()
+    {
+        RevealHexagonsAroundSquad(new Vector2Int(0, 0));
     }
     
     public static T SpawnAt<T>(Vector2Int coordinate) where T : MonoBehaviour

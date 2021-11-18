@@ -34,11 +34,9 @@ public class InGameUI : MonoBehaviour
 
     public void RestartGame()
     {
-        GameSession.onGameReset?.Invoke();
         _gameOverView.SetActive(false);
         _scoreView.SetActive(true);
         GameSession.isPlaying = true;
-        
-
+        GameSession.onGameReset?.Invoke();
     }
 }
