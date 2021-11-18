@@ -9,7 +9,7 @@ public class GameBoard : MonoBehaviour
     [SerializeField, Range(0, 100)] private int _fruitSpawnChance = 2;
     [SerializeField, Range(0, 100)] private int _wallSpawnChance = 15;
     [SerializeField, Range(1, 5)] private int _revealRange = 2;
-    [SerializeField] private int _seed = 0;
+    [SerializeField] private string _worldSeed = "";
     [SerializeField] private float _safeSpawnRange;
     [SerializeField] private AnimationCurve _fadeCurve;
 
@@ -24,15 +24,10 @@ public class GameBoard : MonoBehaviour
     public static float WallSpawnChance => _instance._wallSpawnChance;
     public static float RevealRange => _instance._revealRange;
 
+    private static int WorldSeed => (int)(_instance._worldSeed.GetHashCode() * 1/WallSpawnChance); 
+
     private void Awake()
     {
-        if (_seed == 0)
-        {
-            _seed = Random.Range(int.MinValue, int.MaxValue);
-        }
-        HexNode hexNodePrefab = prefabContainer.GetPrefab<HexNode>().GetComponent<HexNode>();
-        _nodePool = new GameObjectPool<HexNode>(hexNodePrefab, transform);
-
         if (_instance == null)
         {
             _instance = this;
@@ -41,7 +36,17 @@ public class GameBoard : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        Squad.onMoveTick += RevealHexagonsAroundSquad;
+        
+        if (_worldSeed == "")
+        {
+            _worldSeed = Random.Range(int.MinValue, int.MaxValue).ToString();
+        }
+
+        print(WorldSeed);
+        HexNode hexNodePrefab = prefabContainer.GetPrefab<HexNode>().GetComponent<HexNode>();
+        _nodePool = new GameObjectPool<HexNode>(hexNodePrefab, transform);
+
+        Snake.onMoveTick += RevealHexagonsAroundSquad;
         RevealHexagonsAroundSquad(new Vector2Int(0,0));
     }
 
@@ -74,7 +79,7 @@ public class GameBoard : MonoBehaviour
     }
     public static int RandomNumberByCoordinate(Vector2Int coordinate, int min, int max)
     {
-        Random.InitState(coordinate.x * coordinate.y + _instance._seed);
+        Random.InitState(coordinate.x * coordinate.y + WorldSeed);
         return Random.Range(min, max);
     }
 
@@ -136,19 +141,21 @@ public class GameBoard : MonoBehaviour
     {
         bool hasSpawned = Random.Range(1, 101) < _fruitSpawnChance && !HexNode.IsCoordinateWall(coordinate);
         
-        NodeObject nodeObject;
-        
-        if (_instance._nodeObjects.ContainsKey(coordinate))
+        NodeObject nodeObject = null;
+        if (coordinate != Vector2Int.zero)
         {
-            nodeObject = _instance._nodeObjects[coordinate];
-        }
-        else
-        {
-            nodeObject = hasSpawned ? SpawnAt<NewMember>(coordinate) : null;
-            if (hasSpawned)
+            if (_instance._nodeObjects.ContainsKey(coordinate))
             {
-                nodeObject.SetCoordinate(coordinate);
-                _nodeObjects.Add(coordinate, nodeObject);
+                nodeObject = _instance._nodeObjects[coordinate];
+            }
+            else
+            {
+                nodeObject = hasSpawned ? SpawnAt<PickUpSegmentObject>(coordinate) : null;
+                if (hasSpawned)
+                {
+                    nodeObject.SetCoordinate(coordinate);
+                    _nodeObjects.Add(coordinate, nodeObject);
+                }
             }
         }
         return nodeObject;

@@ -4,28 +4,29 @@ using UnityEngine;
 public class GameSession : MonoBehaviour
 {
     public delegate void ScoreHandler(int score);
+    public static ScoreHandler onScoreChanged;
+    public static ScoreHandler onScoreAdd;
 
-    public static ScoreHandler OnScoreChanged;
-    public static ScoreHandler OnScoreAdd;
-    
-    
     public delegate void GameEventHandler();
-    public static GameEventHandler OnGameOver;
-    public static GameEventHandler OnGameReset;
+    public static GameEventHandler onGameOver;
+    public static GameEventHandler onGameReset;
 
     public static bool isPlaying = true;
 
-    private int _score;
+    private static int _score;
 
-    void Start()
+    private void Start()
     {
-        OnGameOver += () => print("ded");
+        onGameOver += () => print("ded");
+        onGameOver += () => isPlaying = false;
+        onGameReset += () => isPlaying = true;
+        onScoreAdd += AddScore;
     }
 
     // Update is called once per frame
-    void AddScore(int score)
+    private void AddScore(int score)
     {
         _score += score;
-        OnScoreAdd?.Invoke(score);
+        onScoreChanged?.Invoke(_score);
     }
 }

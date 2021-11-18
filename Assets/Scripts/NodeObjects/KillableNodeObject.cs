@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class KillableNodeObject : NodeObject
 {
-    public override void OnCollision(Vector2Int moveToCoordinate, Squad squad)
+    public override void OnCollision(Vector2Int moveToCoordinate, Snake snake)
     {
         if (IsGameOver(moveToCoordinate))
         {
-            GameSession.OnGameOver?.Invoke();
+            GameSession.onGameOver?.Invoke();
         }
     }
     private bool IsGameOver(Vector2Int moveToCoordinate)

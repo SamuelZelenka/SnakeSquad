@@ -2,19 +2,20 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class Squad : MonoBehaviour
+public class Snake : MonoBehaviour
 {
     public delegate void MovementHandler(Vector2Int coordinate);
     public static MovementHandler onMoveTick;
     
-    public SquadMember head;
-    public SquadMember tail;
+    public SnakeSegment head;
+    public SnakeSegment tail;
         
     public HexDirection lastDirection;
     public HexDirection currentDirection;
 
     [SerializeField, Range(0, 5)] private float _tickRateSeconds;
     [SerializeField, Range(0, 50)] private float _moveSpeed;
+    [SerializeField, Range(0, 5)] private int _revealRange;
     [SerializeField] private GameObject _directionMarker;
 
     private int TickRateMilliseconds => (int)(_tickRateSeconds * 1000);
@@ -23,11 +24,8 @@ public class Squad : MonoBehaviour
 
     private void Start()
     {
-        head = GameBoard.SpawnAt<SquadMember>(Vector2Int.zero);
-        tail = head;
-        transform.SetParent(head.transform);
-        UpdateMarker(CurrentDirectionVector);
-        MoveTick();
+        GameSession.onGameReset += ResetSnake;
+        ResetSnake();
     }
 
     private void Update()
@@ -66,23 +64,45 @@ public class Squad : MonoBehaviour
 
         currentDirection = wrappedDirection == oppositeOfLastDirection ? currentDirection : (HexDirection) wrappedDirection;
     }
-
-    public void Add(SquadMember squadMember)
+    public void ResetSnake()
     {
-        squadMember.nextSquadMember = head.nextSquadMember;
+        transform.SetParent(null);
+        RemoveMembersFrom(head);
+        head = GameBoard.SpawnAt<SnakeSegment>(Vector2Int.zero);   
+        transform.position = HexGrid.GetWorldPos(Vector2Int.zero);
+        tail = head;
+        transform.SetParent(head.transform);
+        UpdateMarker(CurrentDirectionVector);
+        MoveTick();
+    }
 
-        head.nextSquadMember = squadMember;
+    public void RemoveMembersFrom(SnakeSegment startSegment)
+    {
+        if (startSegment != null)
+        {
+            if (startSegment.nextSegment != null)
+            {
+                RemoveMembersFrom(startSegment.nextSegment);
+            }
+            Destroy(startSegment.gameObject); 
+        }
+    }
+    public void Add(SnakeSegment snakeSegment)
+    {
+        snakeSegment.nextSegment = head.nextSegment;
 
-        SquadMember currentMember = squadMember;
+        head.nextSegment = snakeSegment;
+
+        SnakeSegment currentMember = snakeSegment;
 
         if (head == tail)
         {
-            tail = squadMember;
+            tail = snakeSegment;
         }
-        while (currentMember.nextSquadMember != null)
+        while (currentMember.nextSegment != null)
         {
-            currentMember.coordinate = currentMember.nextSquadMember.coordinate;
-            currentMember = currentMember.nextSquadMember;
+            currentMember.coordinate = currentMember.nextSegment.coordinate;
+            currentMember = currentMember.nextSegment;
         }
     }
 
@@ -101,7 +121,7 @@ public class Squad : MonoBehaviour
                 }
                 else if (GameBoard.GetHexNode(CurrentDirectionVector).isWall)
                 {
-                    GameSession.OnGameOver?.Invoke();
+                    GameSession.onGameOver?.Invoke();
                 }
 
                 lastDirection = currentDirection;
@@ -117,7 +137,7 @@ public class Squad : MonoBehaviour
         Task[] MoveAllMembers()
         {
             Vector2Int moveToCoordinate = CurrentDirectionVector;
-            SquadMember currentMember = head;
+            SnakeSegment currentMember = head;
             List<Task> moveMemberTasks = new List<Task>();
 
             do
@@ -127,7 +147,7 @@ public class Squad : MonoBehaviour
 
                 moveMemberTasks.Add(moveMemberTask);
                 moveToCoordinate = previousPos;
-                currentMember = currentMember.nextSquadMember;
+                currentMember = currentMember.nextSegment;
 
             } while (currentMember != null);
 

@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class SquadMember : KillableNodeObject
+public class SnakeSegment : KillableNodeObject
 {
-    public SquadMember nextSquadMember;
+    public SnakeSegment nextSegment;
 
     public async Task MoveToTarget(Vector2Int gridCoordinate, float moveSpeed)
     {
@@ -17,11 +17,19 @@ public class SquadMember : KillableNodeObject
 
         float pointValue = 0; 
 
-        while (Application.isPlaying && Vector2.Distance(transform.position, worldPosition) > 0.001f)
+        while (Application.isPlaying)
         {
-            pointValue += Time.deltaTime / moveSpeed;
+            if (transform == null)
+            {
+                break;
+            }
+            if (Vector2.Distance(transform.position, worldPosition) > 0.001f)
+            {
+                pointValue += Time.deltaTime / moveSpeed;
             
-            transform.position = Vector2.Lerp(transform.position, worldPosition, pointValue);
+                transform.position = Vector2.Lerp(transform.position, worldPosition, pointValue);
+                 
+            }
             await Task.Yield();
         }
     }

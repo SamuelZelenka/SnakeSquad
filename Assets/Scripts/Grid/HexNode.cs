@@ -13,12 +13,12 @@ public class HexNode : MonoBehaviour, IPoolable
     private void OnEnable()
     {
         _spriteRender = GetComponent<SpriteRenderer>();
-        Squad.onMoveTick += CheckVisibility;
+        Snake.onMoveTick += CheckVisibility;
     }
 
     private void OnDisable()
     {
-        Squad.onMoveTick -= CheckVisibility;
+        Snake.onMoveTick -= CheckVisibility;
     }
 
     public  void CheckVisibility(Vector2Int moveToCoordinate)
