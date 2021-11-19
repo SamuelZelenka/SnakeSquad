@@ -19,7 +19,6 @@ public class Snake : MonoBehaviour
     [SerializeField] private GameObject _directionMarker;
 
     private int TickRateMilliseconds => (int)(_tickRateSeconds * 1000);
-
     private Vector2Int CurrentDirectionVector => head.coordinate + HexGrid.GetDirectionVector(head.coordinate, currentDirection);
 
     private void Start()

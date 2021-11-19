@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class GameSession : MonoBehaviour
@@ -11,20 +10,22 @@ public class GameSession : MonoBehaviour
     public static GameEventHandler onGameOver;
     public static GameEventHandler onGameReset;
 
-    public static bool isPlaying = true;
+    public static bool isPlaying = false;
 
     private static int _score;
 
+    public static int Score => _score;
+
     private void Start()
     {
-        onGameOver += () => print("ded");
         onGameOver += () => isPlaying = false;
+
         onGameReset += () => isPlaying = true;
         onGameReset += () => SetScore(0);
+
         onScoreAdd += AddScore;
     }
 
-    // Update is called once per frame
     private void SetScore(int score)
     {
         _score = score;

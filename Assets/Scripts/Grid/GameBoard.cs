@@ -42,7 +42,6 @@ public class GameBoard : MonoBehaviour
             _worldSeed = Random.Range(int.MinValue, int.MaxValue).ToString();
         }
 
-        print(WorldSeed);
         HexNode hexNodePrefab = prefabContainer.GetPrefab<HexNode>().GetComponent<HexNode>();
         _nodePool = new GameObjectPool<HexNode>(hexNodePrefab, transform);
 
@@ -130,6 +129,7 @@ public class GameBoard : MonoBehaviour
             return HexGrid.GetNeighboursAt(source);
         }
     }
+
     private void RevealHexagonsInit()
     {
         RevealHexagonsAroundSquad(new Vector2Int(0, 0));

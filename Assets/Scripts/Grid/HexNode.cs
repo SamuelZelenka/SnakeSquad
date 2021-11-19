@@ -75,9 +75,8 @@ public class HexNode : MonoBehaviour, IPoolable
     {
         _spriteRender.sprite = _hexSprite;
     }
-
     public void SetActive(bool active)
     {
-        base.gameObject.SetActive(active);
+        gameObject.SetActive(active);
     }
 }

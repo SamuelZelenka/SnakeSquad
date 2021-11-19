@@ -8,7 +8,7 @@ public class PrefabContainer : ScriptableObject
     {
         for (int i = 0; i < _prefabs.Length; i++)
         {
-            if (_prefabs[i].TryGetComponent<T>(out T prefab))
+            if (_prefabs[i].TryGetComponent(out T prefab))
             {
                 return prefab;
             }

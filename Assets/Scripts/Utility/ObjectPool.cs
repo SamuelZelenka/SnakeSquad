@@ -33,6 +33,7 @@ public class ObjectPool<T> where T : new()
         }
         return poolObject;
     }
+
     public virtual void Release(T returnObject)
     {
         if (GetPoolSize() > capacity)

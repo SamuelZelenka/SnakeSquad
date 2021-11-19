@@ -15,13 +15,13 @@ public class PickUpSegmentObject : NodeObject
 
     private void AddSquadMember(Snake snake)
     {
-            SnakeSegment newMember = GameBoard.SpawnAt<SnakeSegment>(coordinate);
+        SnakeSegment newMember = GameBoard.SpawnAt<SnakeSegment>(coordinate);
 
-            snake.Add(newMember);
+        snake.Add(newMember);
 
-            GameBoard.RemoveNodeObjectAt(coordinate);
-            GameBoard.SetNodeObjectAt(coordinate, newMember);
+        GameBoard.RemoveNodeObjectAt(coordinate);
+        GameBoard.SetNodeObjectAt(coordinate, newMember);
 
-            Destroy(gameObject);
+        Destroy(gameObject);
     }
 }

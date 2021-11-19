@@ -1,23 +1,22 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class GameOverUI : MonoBehaviour
 {
-    [SerializeField] private Transform highScorePanel;
-    [SerializeField] private GameObject scorePrefab;
     [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private Highscore highscore;
 
     private void Start()
     {
-        GameSession.onGameOver += () => gameObject.SetActive(true);
+        GameSession.onGameOver += InitGameOver;
+
+        GameSession.onScoreChanged += (score) => scoreText.text = score.ToString();
         gameObject.SetActive(false);
     }
 
-    private void OnEnable()
+    private void InitGameOver()
     {
-        GameSession.onScoreChanged += (score) => scoreText.text = score.ToString();
+        gameObject.SetActive(true);
+        highscore.AddHighscore();
     }
 }

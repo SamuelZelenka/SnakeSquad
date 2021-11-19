@@ -19,6 +19,7 @@ public class GameObjectPool<T> : ObjectPool<T> where T : IPoolable, new()
         }
         pool.Enqueue(releaseObject);
     }
+
     public GameObjectPool(T prefab, Transform parent)
     {
         onCreate = () =>
